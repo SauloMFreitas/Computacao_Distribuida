@@ -1,0 +1,44 @@
+função Proponente(numero, valor):
+    n = escolher_numero_proposta_unico()
+    quorum = obter_quorum_de_aceitadores()
+
+    # Fase 1: Preparação
+    para cada aceitador em quorum:
+        enviar "Prepare(n)" para aceitador
+
+    promessas_recebidas = 0
+    valor_aceito = Nenhum
+
+    para cada resposta recebida:
+        se resposta for "Promessa(n, valor_respondido)":
+            promessas_recebidas += 1
+            se valor_respondido não for Nenhum:
+                valor_aceito = valor_respondido
+
+    se promessas_recebidas >= tamanho_quorum:
+        # Fase 2: Aceitação
+        se valor_aceito for Nenhum:
+            valor_aceito = valor
+        para cada aceitador em quorum:
+            enviar "Aceitar(n, valor_aceito)" para aceitador
+
+função Aceitador():
+    prometido = -1
+    numero_aceito = Nenhum
+    valor_aceito = Nenhum
+
+    ao receber "Prepare(n)" do proponente:
+        se n > prometido:
+            prometido = n
+            enviar "Promessa(n, valor_aceito)" para o proponente
+
+    ao receber "Aceitar(n, v)" do proponente:
+        se n >= prometido:
+            numero_aceito = n
+            valor_aceito = v
+            enviar "Aceito(n, v)" para proponente e aprendizes
+
+função Aprendiz():
+    ao receber "Aceito(n, v)" de um quorum:
+        se receber "Aceito" de um número suficiente de aceitadores:
+            aprender valor v
